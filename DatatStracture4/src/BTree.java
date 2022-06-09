@@ -8,10 +8,10 @@ public class BTree<T extends Comparable<T>> {
     private String name;
 
     //we save the information we need about each split, so we can do merge.
-    protected Deque<Node> backtrackNodes=new ArrayDeque<>(); //parent for splits and node for regular
-    protected Deque<Node> backtrackParent=new ArrayDeque<>(); //parent for splits and node for regular
-    protected Deque<Integer> backtrackMidIndex=new ArrayDeque<>();
-    protected Deque<T> backtrackInserted=new ArrayDeque<>();
+    protected Deque<Node> backtrackNodes=new ArrayDeque<>(); //for previous node save
+    protected Deque<Node> backtrackParent=new ArrayDeque<>(); //for split, median node save (parent of two new nodes after split)
+    protected Deque<Integer> backtrackMidIndex=new ArrayDeque<>(); //for split, to know where is median after split
+    protected Deque<T> backtrackInserted=new ArrayDeque<>(); //to know which value was inserted
     protected Deque<Character> backtrackType=new ArrayDeque<>(); //'s' for split and 'r' for regular
     protected Node<T> root = null;
     protected int size = 0;
