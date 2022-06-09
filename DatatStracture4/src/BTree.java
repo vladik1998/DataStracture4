@@ -9,6 +9,7 @@ public class BTree<T extends Comparable<T>> {
 
     //we save the information we need about each split, so we can do merge.
     protected Deque<Node> backtrackNodes=new ArrayDeque<>(); //parent for splits and node for regular
+    protected Deque<Node> backtrackParent=new ArrayDeque<>(); //parent for splits and node for regular
     protected Deque<Integer> backtrackMidIndex=new ArrayDeque<>();
     protected Deque<T> backtrackInserted=new ArrayDeque<>();
     protected Deque<Character> backtrackType=new ArrayDeque<>(); //'s' for split and 'r' for regular
@@ -90,6 +91,54 @@ public class BTree<T extends Comparable<T>> {
 
         ++size;
         
+    }
+
+    public void insert2(T value) {
+        if (root == null) {
+            root = new Node<T>(null, maxDegree);
+            root.addKey(value);
+            backtrackNodes.add(root);
+            backtrackType.add('r');
+            backtrackInserted.add(value);
+        } else {
+            Node<T> currentNode = root;
+            boolean wasAdded = false;
+            boolean wasSplitted=false;
+            while (currentNode != null && !wasAdded) {
+                // If the node has 2t-1 keys then split it
+                if (currentNode.getNumberOfKeys() == maxDegree - 1) {
+                    wasSplitted=true;
+                    backtrackNodes.add(currentNode);
+                    T midean = split(currentNode);
+                    int midIndex=currentNode.parent.getValuePosition(midean);
+                    backtrackParent.add(currentNode.parent);
+                    backtrackMidIndex.add(midIndex);
+                    backtrackInserted.add(value);
+                    backtrackType.add('s'); //s for split
+                    // Return to the parent and descend to the needed node
+                    currentNode = currentNode.parent != null ? currentNode.parent : root;
+                    int idx = currentNode.getValuePosition(value);
+                    currentNode = currentNode.getChild(idx);
+                }
+
+                // Descend the tree and add the key to a leaf
+                if (currentNode.isLeaf()) {
+                    currentNode.addKey(value);
+                    if(!wasSplitted) {
+                        backtrackNodes.add(currentNode);
+                        backtrackType.add('r');
+                        backtrackInserted.add(value);
+                    }
+                    wasAdded = true;
+                } else {
+                    int idx = currentNode.getValuePosition(value);
+                    currentNode = currentNode.getChild(idx);
+                }
+            }
+        }
+
+        ++size;
+
     }
 
     
