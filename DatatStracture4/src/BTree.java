@@ -46,7 +46,7 @@ public class BTree<T extends Comparable<T>> {
      * 
      * @param value - the inserted value
      */
-    public void insert(T value) {
+    public void insertOld(T value) {
         if (root == null) {
             root = new Node<T>(null, maxDegree);
             root.addKey(value);
@@ -93,7 +93,7 @@ public class BTree<T extends Comparable<T>> {
         
     }
 
-    public void insert2(T value) {
+    public void insert(T value) {
         if (root == null) {
             root = new Node<T>(null, maxDegree);
             root.addKey(value);

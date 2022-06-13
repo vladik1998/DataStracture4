@@ -14,13 +14,13 @@ public class BacktrackingBTree<T extends Comparable<T>> extends BTree<T> {
 	}
 
 	//You are to implement the function Backtrack.
-	public void Backtrack() {
+	public void BacktrackOld() {
 		if (!backtrackInserted.isEmpty()) {
 			Character type = backtrackType.removeLast();
 			if (type.equals('s')) {
 				T inserted = backtrackInserted.peekLast();
 				while (backtrackInserted.peekLast().equals(inserted)) {
-					Merge(backtrackNodes.removeLast(), backtrackMidIndex.removeLast(), backtrackInserted.removeLast());
+					MergeOld(backtrackNodes.removeLast(), backtrackMidIndex.removeLast(), backtrackInserted.removeLast());
 					backtrackType.removeLast();
 				}
 			} else {
@@ -31,13 +31,15 @@ public class BacktrackingBTree<T extends Comparable<T>> extends BTree<T> {
 		}
 	}
 
-	public void Backtrack2() {
+	public void Backtrack() {
 		if (!backtrackInserted.isEmpty()) {
 			Character type = backtrackType.peekLast();
 			if (type.equals('s')) {
 				T inserted = backtrackInserted.peekLast();
+				boolean removedAlready=false;
 				while (backtrackInserted.peekLast().equals(inserted)) {
-					Merge2(backtrackParent.removeLast(), backtrackNodes.removeLast(), backtrackMidIndex.removeLast(), backtrackInserted.removeLast());
+					Merge(backtrackParent.removeLast(), backtrackNodes.removeLast(), backtrackMidIndex.removeLast(), backtrackInserted.removeLast(), removedAlready);
+					removedAlready=true;
 					backtrackType.removeLast();
 				}
 			} else {
@@ -45,6 +47,9 @@ public class BacktrackingBTree<T extends Comparable<T>> extends BTree<T> {
 				T valueToRemove = backtrackInserted.removeLast();
 				leaf.removeKey(valueToRemove); //delete the key from the leaf
 				backtrackType.removeLast();
+				if(leaf.equals(root)&&leaf.getNumberOfKeys()==0){
+					root=null;
+				}
 			}
 		}
 	}
@@ -67,10 +72,10 @@ public class BacktrackingBTree<T extends Comparable<T>> extends BTree<T> {
 		return inserts;
 	}
 
-	private void Merge(Node<T> parent, int indexOfMid, T inserted) {
+	private void MergeOld(Node<T> parent, int indexOfMid, T inserted) {
 
 		Node<T> merged = parent.getChild(indexOfMid);
-		System.out.println(merged.hashCode());
+		//System.out.println(merged.hashCode());
 		boolean isLeaf = merged.isLeaf();
 		int insertedInd = merged.indexOf(inserted);
 		if (insertedInd != -1) {
@@ -104,14 +109,17 @@ public class BacktrackingBTree<T extends Comparable<T>> extends BTree<T> {
 		//return copy;
 	}
 
-	private void Merge2(Node<T> parent, Node<T> previous, int indexOfMid, T inserted) {
+	private void Merge(Node<T> parent, Node<T> previous, int indexOfMid, T inserted, boolean removedAlready) {
 
 		Node<T> left = parent.getChild(indexOfMid);
 		Node<T> right = parent.getChild(indexOfMid + 1);
-		left.removeKey(inserted);
-		right.removeKey(inserted);
+		if(!removedAlready) {
+			Node<T> toRemove = getNode(inserted); //never null
+			toRemove.removeKey(inserted);
+		}
 		if (!previous.isLeaf()) {
-			for (int i = 0; i < previous.getNumberOfChildren(); i++) {
+			int previousChilds=previous.getNumberOfChildren();
+			for (int i = previousChilds-1; i >=0; i--) {
 				previous.removeChild(i);
 			}
 		}
@@ -125,17 +133,16 @@ public class BacktrackingBTree<T extends Comparable<T>> extends BTree<T> {
 		if (parent.parent == null && parent.getNumberOfKeys()==1) {
 			this.root = previous;
 			previous.parent = parent.parent;
+		}else {
+			parent.removeKey(indexOfMid);
+			parent.removeChild(left);
+			parent.removeChild(right);
+			parent.addChild(previous);
 		}
-		parent.removeKey(indexOfMid);
-		parent.removeChild(left);
-		parent.removeChild(right);
-		parent.addChild(previous);
 
 	}
 
+	private void RemoveKeyFromLeaf(Node <T> node, T value){
 
-	private void ReplaceChild(Node<T> prev, Node<T> newNode, int index){
-		Node<T> newChild=prev.getChild(index);
-		newNode.addChild(newChild);
 	}
 }
